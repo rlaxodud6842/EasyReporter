@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>교통 위반 신고 시스템</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <div>
+                    <h1 style="font-size: 1.5rem; font-weight: bold;">교통 위반 신고</h1>
+                    <p style="font-size: 0.875rem; color: #718096;">안전한 교통 문화를 만들어갑니다</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-shield-alt" style="color: #48bb78;"></i>
+                <span style="font-size: 0.875rem; color: #4a5568;">시민 신고</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Left Column -->
+        <div>
+            <!-- Image Upload -->
+            <div class="card">
+                <h2>1. 사진 업로드</h2>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                <div id="uploadArea" class="upload-area">
+                    <i class="fas fa-camera upload-icon"></i>
+                    <p style="font-weight: 600; margin-bottom: 0.5rem;">사진을 업로드하세요</p>
+                    <p style="font-size: 0.875rem; color: #718096;">또는 드래그 앤 드롭</p>
+                </div>
+                <div id="imagePreview" class="image-preview hidden">
+                    <img id="previewImg" src="" alt="Preview">
+                    <button class="change-image-btn" onclick="changeImage()">
+                        <i class="fas fa-sync"></i> 변경
+                    </button>
+                </div>
+                <div id="plateResult" class="plate-result hidden">
+                    <div>
+                        <p style="font-size: 0.875rem; opacity: 0.8;">인식된 번호판</p>
+                        <p id="plateNumber" class="plate-number">12가3456</p>
+                    </div>
+                    <i class="fas fa-car" style="font-size: 2rem;"></i>
+                </div>
+            </div>
+
+            <!-- Violation Type -->
+            <div id="violationSection" class="card hidden">
+                <h2>2. 위반 유형 선택</h2>
+                <div class="violation-grid">
+                    <div class="violation-item" data-type="signal">
+                        <div class="violation-icon">🚦</div>
+                        <p>신호 위반</p>
+                    </div>
+                    <div class="violation-item" data-type="parking">
+                        <div class="violation-icon">🚫</div>
+                        <p>주정차 위반</p>
+                    </div>
+                    <div class="violation-item" data-type="lane">
+                        <div class="violation-icon">🛣️</div>
+                        <p>차선 위반</p>
+                    </div>
+                    <div class="violation-item" data-type="crosswalk">
+                        <div class="violation-icon">🚶</div>
+                        <p>횡단보도 위반</p>
+                    </div>
+                    <div class="violation-item" data-type="bus">
+                        <div class="violation-icon">🚌</div>
+                        <p>버스전용차로</p>
+                    </div>
+                    <div class="violation-item" data-type="speed">
+                        <div class="violation-icon">💨</div>
+                        <p>과속</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button id="submitBtn" class="submit-btn hidden">
+                <i class="fas fa-paper-plane"></i> 신고하기
+            </button>
+        </div>
+
+        <!-- Right Column -->
+        <div>
+            <!-- Location Info -->
+            <div id="locationCard" class="card hidden">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="background: #c6f6d5; padding: 0.75rem; border-radius: 10px;">
+                        <i class="fas fa-map-marker-alt" style="color: #48bb78;"></i>
+                    </div>
+                    <div>
+                        <p style="font-size: 0.875rem; color: #718096;">위반 장소</p>
+                        <p id="locationText" style="font-weight: 600;"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Violation Info -->
+            <div id="violationInfo" class="info-card hidden">
+                <h3>
+                    <i class="fas fa-exclamation-circle"></i> 위반 상세 정보
+                </h3>
+                <div class="info-row">
+                    <span>관련 법규</span>
+                    <span id="lawText">-</span>
+                </div>
+                <div class="info-row">
+                    <span>과태료 (승용차)</span>
+                    <span id="fineText" style="font-weight: bold;">-</span>
+                </div>
+                <div class="info-row">
+                    <span>벌점</span>
+                    <span id="pointsText">-</span>
+                </div>
+                <p id="descText" style="margin-top: 1rem; font-size: 0.875rem; opacity: 0.9;">-</p>
+            </div>
+
+            <!-- Help Info -->
+            <div class="card help-card">
+                <h3>
+                    <i class="fas fa-info-circle" style="color: #667eea;"></i> 이용 안내
+                </h3>
+                <ul>
+                    <li><i class="fas fa-chevron-right"></i> 번호판이 명확히 보이는 사진을 업로드해주세요</li>
+                    <li><i class="fas fa-chevron-right"></i> 허위 신고 시 법적 책임이 따를 수 있습니다</li>
+                    <li><i class="fas fa-chevron-right"></i> 신고 내용은 관련 기관에 전달됩니다</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Chatbot Button -->
+    <div class="ai-button" onclick="toggleChatbot()">
+        <i class="fas fa-comments"></i>
+    </div>
+
+    <!-- Chatbot -->
+    <div id="chatbot" class="chatbot">
+        <div class="chatbot-header">
+            <div>
+                <h3>AI 법규 도우미</h3>
+                <p style="font-size: 0.75rem; opacity: 0.8;">교통법규 궁금증을 해결해드려요</p>
+            </div>
+            <i class="fas fa-times" style="cursor: pointer;" onclick="toggleChatbot()"></i>
+        </div>
+        <div id="chatMessages" class="chatbot-messages">
+            <div class="message">
+                <div class="message-content">
+                    안녕하세요! 교통 법규 AI 도우미입니다. 궁금하신 점을 물어보세요.
+                </div>
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatInput" placeholder="질문을 입력하세요..." onkeypress="handleChatKeyPress(event)">
+            <button onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2>신고 완료!</h2>
+            <p style="color: #718096;">신고가 성공적으로 접수되었습니다.</p>
+            <p style="color: #a0aec0; font-size: 0.875rem;">접수번호: #2024<span id="reportNumber"></span></p>
+        </div>
+    </div>
+
+    <script src="{% static 'main/js/script.js' %}"></script>
+</body>
+</html>

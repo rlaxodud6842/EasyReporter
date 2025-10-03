@@ -1,0 +1,66 @@
+import requests
+from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+from django.core.files.storage import default_storage
+from django.http import JsonResponse
+from .models import ViolationReport
+import json
+
+def home(request):
+    return render(request, 'main/index.html')
+
+# @csrf_exempt  # 테스트용. 실제 배포 시 CSRF 설정 필요
+# def upload_image(request):
+#     if request.method == "POST" and request.FILES.get('image'):
+#         file = request.FILES['image']
+#         path = default_storage.save(f'tmp/{file.name}', file)
+#         return JsonResponse({'path': path})
+#     return JsonResponse({'error': 'No file uploaded'}, status=400)
+
+@csrf_exempt
+def upload_image(request):
+    if request.method == "POST" and request.FILES.get('image'):
+        image_file = request.FILES['image']
+
+        # # OCR 컨테이너로 전송 !! 추후 주석 해제 필요
+        # res = requests.post(
+        #     'http://ocr-service:8000/ocr',
+        #     files={'image': image_file}
+        # )
+        # # return JsonResponse(res.json()) 
+
+        # OCR 결과 그대로 반환
+        
+        return JsonResponse({'plate': '12가3456'})
+
+
+    return JsonResponse({'error': 'No file uploaded'}, status=400)
+
+
+@csrf_exempt
+def submit_report(request):
+    if request.method == "POST":
+        # JSON + 파일 데이터 처리
+        violation_type = request.POST.get("violation_type")
+        location = request.POST.get("location")
+        plate_number = request.POST.get("plate_number")
+        image_file = request.FILES.get("image")
+
+        if not all([violation_type, location, plate_number, image_file]):
+            return JsonResponse({"status": "error", "message": "모든 데이터를 입력하세요."}, status=400)
+
+        report = ViolationReport.objects.create(
+            violation_type=violation_type,
+            location=location,
+            plate_number=plate_number,
+            image=image_file
+        )
+
+        return JsonResponse({
+            "status": "success",
+            "report_id": report.id,
+            "date": report.date.strftime("%Y-%m-%d %H:%M:%S"),
+            "image_url": report.image.url
+        })
+
+    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
