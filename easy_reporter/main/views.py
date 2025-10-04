@@ -6,16 +6,10 @@ from django.http import JsonResponse
 from .models import ViolationReport
 import json
 
+
 def home(request):
     return render(request, 'main/index.html')
 
-# @csrf_exempt  # 테스트용. 실제 배포 시 CSRF 설정 필요
-# def upload_image(request):
-#     if request.method == "POST" and request.FILES.get('image'):
-#         file = request.FILES['image']
-#         path = default_storage.save(f'tmp/{file.name}', file)
-#         return JsonResponse({'path': path})
-#     return JsonResponse({'error': 'No file uploaded'}, status=400)
 
 @csrf_exempt
 def upload_image(request):
@@ -27,9 +21,9 @@ def upload_image(request):
         #     'http://ocr-service:8000/ocr',
         #     files={'image': image_file}
         # )
-        # # return JsonResponse(res.json()) 
+        # # return JsonResponse(res.json())
 
-        # OCR 결과 그대로 반환
+        # FastAPI 테스트용 호출
         res = requests.get('http://fastapi_container:9000/test')
         data = res.json()
         return JsonResponse(data)
@@ -47,7 +41,10 @@ def submit_report(request):
         image_file = request.FILES.get("image")
 
         if not all([violation_type, location, plate_number, image_file]):
-            return JsonResponse({"status": "error", "message": "모든 데이터를 입력하세요."}, status=400)
+            return JsonResponse({
+                "status": "error",
+                "message": "모든 데이터를 입력하세요."
+            }, status=400)
 
         report = ViolationReport.objects.create(
             violation_type=violation_type,
@@ -63,4 +60,7 @@ def submit_report(request):
             "image_url": report.image.url
         })
 
-    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
+    return JsonResponse({
+        "status": "error",
+        "message": "Invalid request"
+    }, status=400)
