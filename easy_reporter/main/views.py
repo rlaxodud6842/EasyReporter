@@ -30,8 +30,9 @@ def upload_image(request):
         # # return JsonResponse(res.json()) 
 
         # OCR 결과 그대로 반환
-        
-        return JsonResponse({'plate': '12가3456'})
+        res = requests.get('http://fastapi_container/test')
+        data = res.json()
+        return JsonResponse(data)
 
 
     return JsonResponse({'error': 'No file uploaded'}, status=400)
