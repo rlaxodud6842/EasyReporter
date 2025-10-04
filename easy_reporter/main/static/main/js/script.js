@@ -182,7 +182,8 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
 // ====================
 // WebSocket 채팅봇
 // ====================
-const chatSocket = new WebSocket("ws://" + window.location.host + "/ws/chat/");
+const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+const chatSocket = new WebSocket(wsScheme + "://" + window.location.host + "/ws/chat/");
 
 chatSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
