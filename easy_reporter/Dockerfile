@@ -8,15 +8,18 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # 컨테이너 내부 작업 폴더
 WORKDIR /app
 
-# 호스트의 requirements.txt 복사 후 설치
+# requirements.txt 복사 및 설치
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 전체 코드 복사
+# Channels + Uvicorn (없다면 설치)
+RUN pip install uvicorn[standard] channels
+
+# 코드 복사
 COPY . .
 
-# 컨테이너 내부 포트 지정 (정보용)
+# 포트 정보
 EXPOSE 8000
 
-# Django 실행 명령
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# ASGI 실행 (Django Channels)
+CMD ["uvicorn", "easy_reporter.asgi:application", "--host", "0.0.0.0", "--port", "8000"]
