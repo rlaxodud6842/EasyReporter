@@ -30,7 +30,7 @@ def upload_image(request):
         # # return JsonResponse(res.json()) 
 
         # OCR 결과 그대로 반환
-        res = requests.get('http://fastapi_container/test')
+        res = requests.get('http://fastapi_container:9000/test')
         data = res.json()
         return JsonResponse(data)
 
