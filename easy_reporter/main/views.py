@@ -34,7 +34,6 @@ def upload_image(request):
         data = res.json()
         return JsonResponse(data)
 
-
     return JsonResponse({'error': 'No file uploaded'}, status=400)
 
 
