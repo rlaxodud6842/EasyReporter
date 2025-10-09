@@ -19,7 +19,7 @@ RUN pip install uvicorn[standard] channels
 COPY . .
 
 # 포트 정보
-EXPOSE 8000
+EXPOSE 9000
 
 # ASGI 실행 (Django Channels)
-CMD ["uvicorn", "easy_reporter.asgi:application", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "easy_reporter.asgi:application", "--host", "0.0.0.0", "--port", "9000"]

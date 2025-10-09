@@ -15,18 +15,11 @@ def home(request):
 def upload_image(request):
     if request.method == "POST" and request.FILES.get('image'):
         image_file = request.FILES['image']
-
-        # # OCR 컨테이너로 전송 !! 추후 주석 해제 필요
-        # res = requests.post(
-        #     'http://ocr-service:8000/ocr',
-        #     files={'image': image_file}
-        # )
-        # # return JsonResponse(res.json())
-
+        
         # FastAPI 테스트용 호출
-        res = requests.get('http://fastapi_container:9000/test')
-        data = res.json()
-        return JsonResponse(data)
+        res = requests.post('http://altclip-api:8000/ocr',files={'file':(image_file.name,image_file.read(),image_file.content_type)})
+        
+        return JsonResponse(res.json(),safe=False)
 
     return JsonResponse({'error': 'No file uploaded'}, status=400)
 
