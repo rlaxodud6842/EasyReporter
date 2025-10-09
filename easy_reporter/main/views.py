@@ -19,10 +19,13 @@ def upload_image(request):
         # FastAPI 테스트용 호출
         res = requests.post('http://altclip-api:8000/ocr',files={'file':(image_file.name,image_file.read(),image_file.content_type)})
         
-        result_value = res.json().get('results')
-        print("결과:", result_value)
-        return JsonResponse(result_value,safe=False)
-    
+        result_value = res.json().get('results', [])
+        if result_value:
+            text_value = result_value[0].get('text')  # 리스트의 첫 번째 요소의 text만 추출
+            print("OCR 텍스트 결과:", text_value)
+            return JsonResponse({'text': text_value})
+        else:
+            return JsonResponse({'text': ''})  # 결과가 비어있을 때 안전하게 처리
     return JsonResponse({'error': 'No file uploaded'}, status=400)
 
 
