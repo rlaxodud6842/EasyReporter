@@ -18,9 +18,10 @@ def upload_image(request):
         
         # FastAPI 테스트용 호출
         res = requests.post('http://altclip-api:8000/ocr',files={'file':(image_file.name,image_file.read(),image_file.content_type)})
-        
-        return JsonResponse(res.json(),safe=False)
 
+        
+        return JsonResponse(res.json().get('result'),safe=False)
+    result_value = print("결과:", result_value)
     return JsonResponse({'error': 'No file uploaded'}, status=400)
 
 
