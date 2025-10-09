@@ -23,7 +23,7 @@ def upload_image(request):
         if result_value:
             text_value = result_value[0].get('text')  # 리스트의 첫 번째 요소의 text만 추출
             print("OCR 텍스트 결과:", text_value)
-            return JsonResponse({'text': text_value})
+            return JsonResponse({'plate': text_value})
         else:
             return JsonResponse({'text': ''})  # 결과가 비어있을 때 안전하게 처리
     return JsonResponse({'error': 'No file uploaded'}, status=400)
