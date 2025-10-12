@@ -180,46 +180,28 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
 });
 
 // ====================
-// WebSocket 채팅봇 (Streaming 대응)
+// WebSocket 채팅봇
 // ====================
 const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
 const chatSocket = new WebSocket(wsScheme + "://llm-service:8001/ws/chat/");
 
+chatSocket.onmessage = function (e) {
+    const data = JSON.parse(e.data);
+    addMessage(data.message, false);
+};
+
 chatSocket.onopen = function () {
-    console.log("✅ WebSocket connected");
+    console.log("WebSocket connected");
 };
 
 chatSocket.onclose = function () {
-    console.log("❌ WebSocket disconnected");
+    console.log("WebSocket disconnected");
 };
 
-let currentBotMessageDiv = null;
-
-chatSocket.onmessage = function (e) {
-    const data = JSON.parse(e.data);
-    const text = data.message;
-
-    // 'stream_start' 시 새로운 말풍선 생성
-    if (data.type === "stream_start") {
-        currentBotMessageDiv = addMessage("", false);
-        return;
-    }
-
-    // 'chunk' 시 기존 메시지에 텍스트 이어붙이기
-    if (data.type === "chunk" && currentBotMessageDiv) {
-        currentBotMessageDiv.querySelector(".message-content").textContent += text;
-        return;
-    }
-
-    // 'stream_end' 시 마무리
-    if (data.type === "stream_end") {
-        currentBotMessageDiv = null;
-        return;
-    }
-
-    // 일반 메시지 (기존 구조)
-    addMessage(text, false);
-};
+function toggleChatbot() {
+    const chatbot = document.getElementById('chatbot');
+    chatbot.style.display = chatbot.style.display === 'flex' ? 'none' : 'flex';
+}
 
 function sendMessage() {
     const input = document.getElementById('chatInput');
@@ -247,5 +229,4 @@ function addMessage(text, isUser) {
     messageDiv.innerHTML = `<div class="message-content">${text}</div>`;
     messagesDiv.appendChild(messageDiv);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    return messageDiv; // ✅ 나중에 덧붙일 수 있도록 반환
 }
