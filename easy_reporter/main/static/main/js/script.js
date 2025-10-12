@@ -182,40 +182,37 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
 // ====================
 // WebSocket 채팅봇
 // ====================
-const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
-const chatSocket = new WebSocket(wsScheme + "://localhost:8001/ws/chat/");
-
-chatSocket.onmessage = function (e) {
-    const data = JSON.parse(e.data);
-    addMessage(data.message, false);
-};
-
-chatSocket.onopen = function () {
-    console.log("WebSocket connected");
-};
-
-chatSocket.onclose = function () {
-    console.log("WebSocket disconnected");
-};
-
-function toggleChatbot() {
-    const chatbot = document.getElementById('chatbot');
-    chatbot.style.display = chatbot.style.display === 'flex' ? 'none' : 'flex';
-}
-
-function sendMessage() {
+async function sendMessage() {
     const input = document.getElementById('chatInput');
     const message = input.value.trim();
     if (!message) return;
 
+    // 사용자 메시지 출력
     addMessage(message, true);
     input.value = '';
 
-    if (chatSocket.readyState === WebSocket.OPEN) {
-        chatSocket.send(JSON.stringify({ message, timestamp: Date.now() }));
-    } else {
-        console.error('WebSocket 연결이 열려있지 않습니다.');
+    try {
+        const res = await fetch('/api/chat/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message }),
+        });
+
+        if (!res.ok) {
+            throw new Error(`API 호출 실패 (status: ${res.status})`);
+        }
+
+        const data = await res.json();
+        addMessage(data.message, false);
+    } catch (err) {
+        console.error('API 호출 오류:', err);
+        addMessage('(⚠️ 서버 오류) 잠시 후 다시 시도해주세요.', false);
     }
+}
+
+function toggleChatbot() {
+    const chatbot = document.getElementById('chatbot');
+    chatbot.style.display = chatbot.style.display === 'flex' ? 'none' : 'flex';
 }
 
 function handleChatKeyPress(e) {

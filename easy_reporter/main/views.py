@@ -27,6 +27,26 @@ def upload_image(request):
         else:
             return JsonResponse({'text': ''})  # 결과가 비어있을 때 안전하게 처리
     return JsonResponse({'error': 'No file uploaded'}, status=400)
+# 내부 Docker 네트워크 기준 URL
+LLM_API_URL = "http://llm-service:8001/ask"
+
+@csrf_exempt
+def chat_api(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            message = data.get("message", "")
+            if not message:
+                return JsonResponse({"message": "메시지를 입력해주세요."}, status=400)
+
+            res = requests.post(LLM_API_URL, json={"question": message})
+            llm_data = res.json()
+            return JsonResponse({"message": llm_data.get("answer", "응답이 없습니다.")})
+
+        except Exception as e:
+            print("❌ LLM API 호출 오류:", e)
+            return JsonResponse({"message": "LLM 서버에 연결할 수 없습니다."}, status=500)
+    return JsonResponse({"message": "잘못된 요청입니다."}, status=405)
 
 
 @csrf_exempt
