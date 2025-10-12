@@ -183,7 +183,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
 // WebSocket 채팅봇
 // ====================
 const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
-const chatSocket = new WebSocket(wsScheme + "://llm-service:8001/ws/chat/");
+const chatSocket = new WebSocket(wsScheme + "://localhost:8001/ws/chat/");
 
 chatSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
